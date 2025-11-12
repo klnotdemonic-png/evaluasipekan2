@@ -155,3 +155,93 @@ const dataSantri = [
 const hasilKurva = kurvaNilai(dataSantri, 5);
 
 console.log(hasilKurva);
+
+// filter dan cari
+
+function seleksiDanCari(arr, batas, namaDicari) {
+  const lulus = arr.filter(item => item.nilai >= batas);
+  const ditemukan = lulus.find(item => item.nama === namaDicari) || null;
+  return { lulus, ditemukan };
+}
+ const data = [
+  { nama: "Ali", nilai: 85 },
+  { nama: "Budi", nilai: 72 },
+  { nama: "Citra", nilai: 90 },
+  { nama: "Dina", nilai: 65 }
+];
+
+const hasil = seleksiDanCari(data, 75, "Citra");
+
+console.log(hasil);
+
+// reduce
+
+function analitikNilai(...nilai) {
+  const total = nilai.reduce((acc, n) => acc + n, 0);
+  const rata = nilai.length > 0 ? total / nilai.length : 0;
+  return { total, rata };
+}
+console.log(analitikNilai(80, 90, 70));
+
+console.log(analitikNilai());
+
+//destructuringh
+
+function setGetDynamic(obj, key, value) {
+  const objBaru = { ...obj, [key]: value };
+  return {
+    value: objBaru[key],
+    obj: objBaru
+  };
+}
+
+//spread n rest
+
+function gabungProfilDanJumlah(admin, asrama, ...nilaiTambahan) {
+  const profilGabung = { ...admin, ...asrama };
+  const totalTambahan = nilaiTambahan.reduce((acc, n) => acc + n, 0);
+  return { profilGabung, totalTambahan };
+}
+
+//integrasi ringkas
+
+function laporanProgram(pondok) {
+  let output = `📍 Pondok: ${pondok.nama}\n`;
+
+  for (const prog of pondok.program) {
+    output += `\n📘 Program: ${prog.nama}\n👨‍🏫 Mentor: ${prog.mentor}\n`;
+
+    // modul dan submodul
+    for (const modul of prog.modul) {
+      output += `- Modul: ${modul.nama}\n`;
+      if (modul.submodul && modul.submodul.length > 0) {
+        for (const sub of modul.submodul) {
+          output += `  • Submodul: ${sub}\n`;
+        }
+      }
+    }
+
+    // santri
+    const santriUrut = [...prog.santri].map(s => {
+      const totalNilai = s.nilai.reduce((acc, n) => acc + n, 0);
+      const rata = s.nilai.length ? totalNilai / s.nilai.length : 0;
+
+      const totalHadir = s.kehadiran.length;
+      const jumlahTrue = s.kehadiran.filter(h => h).length;
+      const hadirPct = totalHadir ? (jumlahTrue / totalHadir) * 100 : 0;
+
+      const statusNilai = rata >= 75 ? "Lulus" : "Tidak Lulus";
+      const statusHadir = hadirPct >= 75 ? "Rajin" : "Kurang Rajin";
+
+      return { ...s, rata, hadirPct, statusNilai, statusHadir };
+    }).sort((a, b) => b.rata - a.rata);
+
+    for (const s of santriUrut) {
+      output += `\n👤 ${s.nama}\n`;
+      output += `   Rata-rata Nilai: ${s.rata.toFixed(2)} (${s.statusNilai})\n`;
+      output += `   Kehadiran: ${s.hadirPct.toFixed(1)}% (${s.statusHadir})\n`;
+    }
+  }
+
+  return output;
+}
